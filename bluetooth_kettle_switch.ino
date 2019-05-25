@@ -3,19 +3,19 @@
 char buffer;
 String input = "";
 Servo myServo; 
-boolean firstTime = true; 
 
 void flickTheSwitch() {
-  myServo.write(70);
+  myServo.write(80);
   delay(1000);
-  myServo.write(40);
+  myServo.write(10);
 }
 
 void setup()                   
 {
- myServo.write(40); 
+ myServo.write(10); 
  myServo.attach(8);
- Serial.begin(9600);       
+ Serial.begin(9600);  
+ //flickTheSwitch();     
 }
 
 void loop()
@@ -30,10 +30,7 @@ void loop()
     while (Serial.available() > 0)  
     { buffer = Serial.read() ; }      
       if(input == "k") { 
-      if(firstTime = false) myServo.attach(8);
-      flickTheSwitch();
-      firstTime = false;
-      myServo.detach();      
+      flickTheSwitch();     
     }
     input = "";
   }
