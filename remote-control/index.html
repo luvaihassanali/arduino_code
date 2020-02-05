@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta charset="UTF-8">
+  <title>Hello World!</title>
+</head>
+<link rel="stylesheet" type="text/css" href="jquery-ui.min.css">
+<style>
+  body {
+    padding: 50px;
+    font: 14px "Lucida Grande", Helvetica, Arial, sans-serif;
+    background-color: lightgray;
+  }
+
+  a {
+    color: #00B7FF;
+  }
+
+  button {
+    font: 48px "Lucida Grande", Helvetica, Arial, sans-serif;
+    color: black;
+    background-color: lightgray;
+    width: 100px;
+    cursor: pointer;
+  }
+
+  input {
+    color: black;
+    background-color: lightgray;
+  }
+
+  div {
+    color: black;
+    background-color: lightgray;
+  }
+
+  .blue {
+    background: blue;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    display: block;
+    border-radius: 50%;
+    text-align: center;
+    text-decoration:none;
+    border:3px solid #fff;
+    box-shadow: 0px 0px 0px 3px blue;
+  }
+
+  .red {
+    background: red;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    display: block;
+    border-radius: 50%;
+    text-align: center;
+    text-decoration:none;
+    border:3px solid #fff;
+    box-shadow: 0px 0px 0px 3px red;
+  }
+  
+  .green {
+    background: green;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    display: block;
+    border-radius: 50%;
+    text-align: center;
+    text-decoration:none;
+    border:3px solid #fff;
+    box-shadow: 0px 0px 0px 3px green;
+  }
+
+  .grey {
+    background: grey;
+    color: #fff;
+    width: 40px;
+    height: 40px;
+    line-height: 40px;
+    display: block;
+    border-radius: 50%;
+    text-align: center;
+    text-decoration:none;
+    border:3px solid #fff;
+    box-shadow: 0px 0px 0px 3px grey;
+  }
+</style>
+
+<body>
+  <div id="mylog" style="border-style: solid; border-width: thin; float: right; width: 400px; height: 640px; font-size: 18px"></div>
+  <table style="padding-right: 20px; float: right">
+    <tr><td><button id="buttonGreen" class="green" onclick="greenLight()"></button></td></tr>
+    <tr></tr>
+    <tr></tr>
+    <tr><td><button id="buttonRed" class="red" onclick="redLight()"></button></td></tr>
+    <tr></tr>
+    <tr></tr>
+    <tr><td><button id="buttonBlue" class="blue" onclick="blueLight()"></button></td></tr>
+    <tr></tr>
+    <tr></tr>
+    <tr><td><button id="buttonGrey" class="grey" onclick="offLight()"></button></td></tr>
+  </table>
+  <table>
+    <tr>
+      <td></td>
+      <td><button id="buttonW">⇧</button></td>
+      <td></td>
+    </tr>
+    <tr>
+      <td><button id="buttonA">⇦</button></td>
+      <td></td>
+      <td><button id="buttonD">⇨</button></td>
+    </tr>
+    <tr>
+      <td></td>
+      <td><button id="buttonS">⇩</button></td>
+      <td></td>
+    </tr>
+  </table>
+  <br><br>
+  <!--<p style="font-size: 18px"><button style="font-size: 18px; width:160px" id="resetButton" onclick="ResetConnection()">Reset Connection</button>&nbsp;&nbsp;Delay:&nbsp;<input type="number" style="font-size: 18px; width: 80px" id="delayValue" value="500">ms</p>-->
+  <iframe src="http://192.168.0.182" height="400" width="400"></iframe>
+  <script>window.$ = window.jQuery = require('./jquery-3.4.1.min.js');</script>
+  <script src="./jquery-ui.min.js"></script>
+  <script src="./renderer.js"></script>
+</body>
+
+</html>

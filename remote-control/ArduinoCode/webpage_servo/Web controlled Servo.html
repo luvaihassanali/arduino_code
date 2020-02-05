@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<title>Web controlled Servo</title>
+	<script src="./jquery.js"></script>
+</head>
+
+<body>
+
+	<input type="range" min="20" max="170" onmouseup="servo1(this.value)">
+	<script>
+		$.ajaxSetup({ timeout: 1000 });
+		function servo1(angle) {
+			console.log(angle);
+			$.get("http://192.168.0.196:80", { "sr1": angle });
+			{ Connection: close };
+		}
+	</script>
+</body>
+
+</html>
