@@ -2,11 +2,15 @@
 #include <IRremote.h>
 #include "LowPower.h"
 
+
 const uint8_t LED_CMD = 0x80;
 const uint8_t LED_ON = 0x12;
 const uint8_t LED_OFF = 0x1A;
+
 const byte IR_SENSOR_PIN = 2;
-byte irInteruptState = 0;
+const byte NUM_REPEAT = 1;
+
+byte ledOn = false;
 
 void irInterupt() {}
 
@@ -21,11 +25,12 @@ void loop()
   attachInterrupt(0, irInterupt, CHANGE);
   LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF);
   detachInterrupt(0);
-
-  irInteruptState = digitalRead(IR_SENSOR_PIN);
-  if (irInteruptState == HIGH) {
-    IrSender.sendNEC(LED_CMD, LED_ON, 1);
+  
+  if (ledOn) {
+    IrSender.sendNEC(LED_CMD, LED_OFF, NUM_REPEAT);
+    ledOn = false;
   } else {
-    IrSender.sendNEC(LED_CMD, LED_OFF, 1);
+    IrSender.sendNEC(LED_CMD, LED_ON, NUM_REPEAT);
+    ledOn = true;
   }
 }
