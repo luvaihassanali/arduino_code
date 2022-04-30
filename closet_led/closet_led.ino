@@ -10,8 +10,7 @@ const uint8_t LED_OFF = 0x1A;
 const byte IR_SENSOR_PIN = 2;
 const byte NUM_REPEAT = 1;
 
-byte ledOn = false;
-
+byte irState = 0;
 void irInterupt() {}
 
 void setup()
@@ -25,12 +24,11 @@ void loop()
   attachInterrupt(0, irInterupt, CHANGE);
   LowPower.powerDown(SLEEP_FOREVER, ADC_OFF, BOD_OFF);
   detachInterrupt(0);
-  
-  if (ledOn) {
-    IrSender.sendNEC(LED_CMD, LED_OFF, NUM_REPEAT);
-    ledOn = false;
-  } else {
+
+  irState = digitalRead(IR_SENSOR_PIN);
+  if (irState) {
     IrSender.sendNEC(LED_CMD, LED_ON, NUM_REPEAT);
-    ledOn = true;
+  } else {
+    IrSender.sendNEC(LED_CMD, LED_OFF, NUM_REPEAT);
   }
 }
