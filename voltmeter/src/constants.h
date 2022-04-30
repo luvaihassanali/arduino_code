@@ -18,7 +18,7 @@ https://create.arduino.cc/projecthub/aboda243/how-to-use-4-digit-7-segment-witho
 */
 
 #define DEBUG true
-
+#define DELAY_VAL 1000
 #define PIN_A 2
 #define PIN_B 3
 #define PIN_C 4

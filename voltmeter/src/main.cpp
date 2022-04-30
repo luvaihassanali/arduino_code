@@ -1,10 +1,22 @@
 #include <Arduino.h>
 #include "constants.h"
 
-void Log(String msg);
+int analogInput = A0;
+float vOut = 0.00;
+float vIn = 0.00;
+String voltageString = "0.00";
+// Resistance of anode resistor (R1 100K)
+float resistor100k = 100000.00;
+// Resistance of cathode (R2 10K)
+float resistor10k = 10000.00;
+int analogVal = 0;
+int dotIncrement = 1;
+
+void Log(float val);
 void ClearDisplay();
+String ParseVoltage(float value);
 void PrintDigit(char charToPrint, int digitPort, bool printPeriod);
-void PrintDisplay(String displayString, int delayLength);
+void PrintDisplay(String displayString, int delayLength, int periodIndex);
 
 void setup()
 {
@@ -22,26 +34,47 @@ void setup()
   pinMode(SEGMENT_CHAR_2, OUTPUT);
   pinMode(SEGMENT_CHAR_3, OUTPUT);
   pinMode(SEGMENT_CHAR_4, OUTPUT);
+  // Voltage analog pin
+  pinMode(analogInput, INPUT);
 
   if (DEBUG)
   {
     Serial.begin(9600);
   }
 
-  PrintDisplay("8888", 3000);
   ClearDisplay();
-  delay(1000);
-  PrintDigit('8', SEGMENT_CHAR_1, true);
-  delay(1000);
-  PrintDigit('8', SEGMENT_CHAR_2, true);
-  delay(1000);
-  PrintDigit('8', SEGMENT_CHAR_3, true);
-  delay(1000);
-  PrintDigit('8', SEGMENT_CHAR_4, true);
-  delay(1000);
 }
 
-void loop() {}
+void loop()
+{
+  analogVal = analogRead(analogInput);
+  // Formula for calculating voltage out i.e. V+, here 5.00 (analogReference(DEFAULT))
+  vOut = (analogVal * 5.00) / 1024.00;
+  // Formula for calculating voltage in i.e. GND Vin (R2/R1+R2)
+  vIn = vOut / (resistor10k / (resistor100k + resistor10k));
+  // Floor undesired vIn values
+  if (vIn < 0.09)
+  {
+    vIn = 0.00;
+  }
+  Log(vIn);
+  voltageString = ParseVoltage(vIn);
+
+  if (vIn == 0.00)
+  {
+    PrintDisplay(voltageString, DELAY_VAL, dotIncrement);
+    dotIncrement++;
+    if (dotIncrement == 5)
+    {
+      dotIncrement = 1;
+    }
+  }
+  else
+  {
+    dotIncrement = 1;
+    PrintDisplay(voltageString, DELAY_VAL, 2);
+  }
+}
 
 void ClearDisplay()
 {
@@ -56,12 +89,29 @@ void ClearDisplay()
   }
 }
 
-void Log(String msg)
+void Log(float val)
 {
   if (DEBUG)
   {
-    Serial.println(msg);
+    Serial.println(String(val));
   }
+}
+
+String ParseVoltage(float value)
+{
+  String result = "";
+  if (value < 10)
+  {
+    result = "0";
+    result += String(value);
+    result.replace(".", "");
+  }
+  else
+  {
+    result = String(value);
+    result.replace(".", "");
+  }
+  return result;
 }
 
 void PrintDigit(char charToPrint, int segmentChar, bool printPeriod)
@@ -95,7 +145,7 @@ void PrintDigit(char charToPrint, int segmentChar, bool printPeriod)
   }
 }
 
-void PrintDisplay(String displayString, int delayLength)
+void PrintDisplay(String displayString, int delayLength, int periodIndex)
 {
   char char1 = displayString.charAt(0);
   char char2 = displayString.charAt(1);
@@ -124,13 +174,18 @@ void PrintDisplay(String displayString, int delayLength)
       else
         char4 = displayString.charAt(3);
 
-      PrintDigit(char1, SEGMENT_CHAR_1, true);
+      bool pIndex1 = periodIndex == 1 ? true : false;
+      bool pIndex2 = periodIndex == 2 ? true : false;
+      bool pIndex3 = periodIndex == 3 ? true : false;
+      bool pIndex4 = periodIndex == 4 ? true : false;
+
+      PrintDigit(char1, SEGMENT_CHAR_1, pIndex1);
       delay(2);
-      PrintDigit(char2, SEGMENT_CHAR_2, true);
+      PrintDigit(char2, SEGMENT_CHAR_2, pIndex2);
       delay(2);
-      PrintDigit(char3, SEGMENT_CHAR_3, true);
+      PrintDigit(char3, SEGMENT_CHAR_3, pIndex3);
       delay(2);
-      PrintDigit(char4, SEGMENT_CHAR_4, true);
+      PrintDigit(char4, SEGMENT_CHAR_4, pIndex4);
       delay(2);
     }
   }
@@ -140,15 +195,21 @@ void PrintDisplay(String displayString, int delayLength)
     {
       for (int ti = 0; ti <= (delayLength / 8); ti++)
       {
-        PrintDigit(char1, SEGMENT_CHAR_1, true);
+        bool pIndex1 = periodIndex == 1 ? true : false;
+        bool pIndex2 = periodIndex == 2 ? true : false;
+        bool pIndex3 = periodIndex == 3 ? true : false;
+        bool pIndex4 = periodIndex == 4 ? true : false;
+
+        PrintDigit(char1, SEGMENT_CHAR_1, pIndex1);
         delay(2);
-        PrintDigit(char2, SEGMENT_CHAR_2, true);
+        PrintDigit(char2, SEGMENT_CHAR_2, pIndex2);
         delay(2);
-        PrintDigit(char3, SEGMENT_CHAR_3, true);
+        PrintDigit(char3, SEGMENT_CHAR_3, pIndex3);
         delay(2);
-        PrintDigit(char4, SEGMENT_CHAR_4, true);
+        PrintDigit(char4, SEGMENT_CHAR_4, pIndex4);
         delay(2);
       }
+
       if (t + 1 > stringLength)
         char1 = ' ';
       else
