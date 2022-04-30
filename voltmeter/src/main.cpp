@@ -1,68 +1,92 @@
 #include <Arduino.h>
 #include "constants.h"
 
+void Log(String msg);
+void ClearDisplay();
+void PrintDigit(char charToPrint, int digitPort, bool printPeriod);
+void PrintDisplay(String displayString, int delayLength);
+
 void setup()
 {
-  // initialize the digital pins as outputs.
-  pinMode(pinA, OUTPUT);
-  pinMode(pinB, OUTPUT);
-  pinMode(pinC, OUTPUT);
-  pinMode(pinD, OUTPUT);
-  pinMode(pinE, OUTPUT);
-  pinMode(pinF, OUTPUT);
-  pinMode(pinG, OUTPUT);
-  pinMode(pinDP, OUTPUT);
-  pinMode(D1, OUTPUT);
-  pinMode(D2, OUTPUT);
-  pinMode(D3, OUTPUT);
-  pinMode(D4, OUTPUT);
-  Serial.begin(9600);
-}
-// the loop routine runs over and over again forever:
-void loop()
-{
-  printDisplay("2021", 1000); // use this function to print a string (has numbers, characters or phrases) when the length of string is 4 or less than 4, the second variable is the time for printing on display
-  Reset();                    // use this function to reset the display
+  // Segment sections
+  pinMode(PIN_A, OUTPUT);
+  pinMode(PIN_B, OUTPUT);
+  pinMode(PIN_C, OUTPUT);
+  pinMode(PIN_D, OUTPUT);
+  pinMode(PIN_E, OUTPUT);
+  pinMode(PIN_F, OUTPUT);
+  pinMode(PIN_G, OUTPUT);
+  pinMode(PIN_P, OUTPUT);
+  // 4 segments of display
+  pinMode(SEGMENT_CHAR_1, OUTPUT);
+  pinMode(SEGMENT_CHAR_2, OUTPUT);
+  pinMode(SEGMENT_CHAR_3, OUTPUT);
+  pinMode(SEGMENT_CHAR_4, OUTPUT);
+
+  if (DEBUG)
+  {
+    Serial.begin(9600);
+  }
+
+  PrintDisplay("8888", 3000);
+  ClearDisplay();
   delay(1000);
-  // printDisplay("all usable characters [[ 1 2 3 4 5 6 7 8 9 0 a b c d e f g h i j l n o p q r s t u y - _ . [ ] ? ]]",300);// when the length of string is more than 4, the second variable is custom speed for movement
-  // delay(1000);
-  printDigit('y', D1, true); // print any char on any digit
+  PrintDigit('8', SEGMENT_CHAR_1, true);
+  delay(1000);
+  PrintDigit('8', SEGMENT_CHAR_2, true);
+  delay(1000);
+  PrintDigit('8', SEGMENT_CHAR_3, true);
+  delay(1000);
+  PrintDigit('8', SEGMENT_CHAR_4, true);
   delay(1000);
 }
 
+void loop() {}
 
-void Reset()
+void ClearDisplay()
 {
-  digitalWrite(D1, !HIGH);
-  digitalWrite(D2, !HIGH);
-  digitalWrite(D3, !HIGH);
-  digitalWrite(D4, !HIGH);
+  digitalWrite(SEGMENT_CHAR_1, !HIGH);
+  digitalWrite(SEGMENT_CHAR_2, !HIGH);
+  digitalWrite(SEGMENT_CHAR_3, !HIGH);
+  digitalWrite(SEGMENT_CHAR_4, !HIGH);
+
   for (byte i = 0; i < 8; i++)
   {
-    digitalWrite(seg[i], HIGH);
+    digitalWrite(SEGMENT_SECTIONS[i], HIGH);
   }
 }
-void printDigit(char Chara, int digitPort, bool printPeriod = false)
+
+void Log(String msg)
 {
-  Reset();
-  int character = -1;
-  digitalWrite(digitPort, HIGH);
-  for (int i = 0; i < charsInArray; i++)
+  if (DEBUG)
   {
-    if (Chara == Char[i][8])
+    Serial.println(msg);
+  }
+}
+
+void PrintDigit(char charToPrint, int segmentChar, bool printPeriod)
+{
+  ClearDisplay();
+  int character = -1;
+  digitalWrite(segmentChar, HIGH);
+
+  for (int i = 0; i < PRINTABLE_CHARS_LENGTH; i++)
+  {
+    if (charToPrint == PRINTABLE_CHARS[i][8])
     {
       character = i;
     }
   }
+
   if (character == -1)
   {
-    digitalWrite(pinG, !HIGH);
+    digitalWrite(PIN_G, !HIGH);
   }
   else
   {
     for (int i = 0; i <= 7; i++)
     {
-      digitalWrite(seg[i], !Char[character][i]);
+      digitalWrite(SEGMENT_SECTIONS[i], !PRINTABLE_CHARS[character][i]);
       if (i == 7 && printPeriod == true)
       {
         digitalWrite(13, 0);
@@ -70,46 +94,43 @@ void printDigit(char Chara, int digitPort, bool printPeriod = false)
     }
   }
 }
-void printDisplay(String Phrase, int Delay)
+
+void PrintDisplay(String displayString, int delayLength)
 {
-  char char1 = Phrase.charAt(0);
-  char char2 = Phrase.charAt(1);
-  char char3 = Phrase.charAt(2);
-  char char4 = Phrase.charAt(3);
-  // char char5 = Phrase.charAt(4);
-  char char1Num = 0;
-  char char2Num = 0;
-  char char3Num = 0;
-  char char4Num = 0;
-  int stringLength = Phrase.length();
+  char char1 = displayString.charAt(0);
+  char char2 = displayString.charAt(1);
+  char char3 = displayString.charAt(2);
+  char char4 = displayString.charAt(3);
+
+  int stringLength = displayString.length();
   if (stringLength < 5)
   {
-    for (int ti = 0; ti <= (Delay / 8); ti++)
+    for (int ti = 0; ti <= (delayLength / 8); ti++)
     {
       if (1 > stringLength)
         char1 = ' ';
       else
-        char1 = Phrase.charAt(0);
+        char1 = displayString.charAt(0);
       if (2 > stringLength)
         char2 = ' ';
       else
-        char2 = Phrase.charAt(1);
+        char2 = displayString.charAt(1);
       if (3 > stringLength)
         char3 = ' ';
       else
-        char3 = Phrase.charAt(2);
+        char3 = displayString.charAt(2);
       if (4 > stringLength)
         char4 = ' ';
       else
-        char4 = Phrase.charAt(3);
+        char4 = displayString.charAt(3);
 
-      printDigit(char1, D1);
+      PrintDigit(char1, SEGMENT_CHAR_1, true);
       delay(2);
-      printDigit(char2, D2);
+      PrintDigit(char2, SEGMENT_CHAR_2, true);
       delay(2);
-      printDigit(char3, D3);
+      PrintDigit(char3, SEGMENT_CHAR_3, true);
       delay(2);
-      printDigit(char4, D4);
+      PrintDigit(char4, SEGMENT_CHAR_4, true);
       delay(2);
     }
   }
@@ -117,35 +138,33 @@ void printDisplay(String Phrase, int Delay)
   {
     for (int t = 0; t <= stringLength; t++)
     {
-      for (int ti = 0; ti <= (Delay / 8); ti++)
+      for (int ti = 0; ti <= (delayLength / 8); ti++)
       {
-        /*Reset();
-        delay(2);*/
-        printDigit(char1, D1);
+        PrintDigit(char1, SEGMENT_CHAR_1, true);
         delay(2);
-        printDigit(char2, D2);
+        PrintDigit(char2, SEGMENT_CHAR_2, true);
         delay(2);
-        printDigit(char3, D3);
+        PrintDigit(char3, SEGMENT_CHAR_3, true);
         delay(2);
-        printDigit(char4, D4);
+        PrintDigit(char4, SEGMENT_CHAR_4, true);
         delay(2);
       }
       if (t + 1 > stringLength)
         char1 = ' ';
       else
-        char1 = Phrase.charAt(t);
+        char1 = displayString.charAt(t);
       if ((t + 2) > stringLength)
         char2 = ' ';
       else
-        char2 = Phrase.charAt(t + 1);
+        char2 = displayString.charAt(t + 1);
       if ((t + 3) > stringLength)
         char3 = ' ';
       else
-        char3 = Phrase.charAt(t + 2);
+        char3 = displayString.charAt(t + 2);
       if ((t + 4) > stringLength)
         char4 = ' ';
       else
-        char4 = Phrase.charAt(t + 3);
+        char4 = displayString.charAt(t + 3);
     }
   }
 }

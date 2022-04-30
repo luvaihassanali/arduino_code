@@ -17,24 +17,24 @@ https://create.arduino.cc/projecthub/aboda243/how-to-use-4-digit-7-segment-witho
 
 */
 
-#define pinA 2
-#define pinB 3
-#define pinC 4
-#define pinD 5
-#define pinE 7
-#define pinF 12
-#define pinG 8
-#define pinDP 13
-#define D1 6
-#define D2 9
-#define D3 10
-#define D4 11
-#define DP 30
+#define DEBUG true
 
-const int charsInArray = 37;
-byte digits[]{D1, D2, D3, D4};
-byte seg[]{pinA, pinB, pinC, pinD, pinE, pinF, pinG, pinDP};
-byte Char[37][9]{
+#define PIN_A 2
+#define PIN_B 3
+#define PIN_C 4
+#define PIN_D 5
+#define PIN_E 7
+#define PIN_F 12
+#define PIN_G 8
+#define PIN_P 13
+#define SEGMENT_CHAR_1 6
+#define SEGMENT_CHAR_2 9
+#define SEGMENT_CHAR_3 10
+#define SEGMENT_CHAR_4 11
+
+const byte SEGMENT_SECTIONS[]{PIN_A, PIN_B, PIN_C, PIN_D, PIN_E, PIN_F, PIN_G, PIN_P};
+const int PRINTABLE_CHARS_LENGTH = 37;
+const byte PRINTABLE_CHARS[PRINTABLE_CHARS_LENGTH][9]{
     {1, 1, 1, 1, 1, 1, 0, 0, '0'}, // 0
     {0, 1, 1, 0, 0, 0, 0, 0, '1'}, // 1
     {1, 1, 0, 1, 1, 0, 1, 0, '2'}, // 2
@@ -61,21 +61,17 @@ byte Char[37][9]{
     {1, 1, 0, 0, 1, 1, 1, 0, 'p'}, // P/14
     {1, 1, 1, 0, 0, 1, 1, 0, 'q'}, // q/15
     {0, 0, 0, 0, 1, 0, 1, 0, 'r'}, // r/16
-    {1, 0, 1, 1, 0, 1, 1, 0, 's'}, // S/17   looks like number 5
+    {1, 0, 1, 1, 0, 1, 1, 0, 's'}, // S/17
     {0, 0, 0, 1, 1, 1, 1, 0, 't'}, // t/18
     {0, 1, 1, 1, 1, 1, 0, 0, 'u'}, // U/19
     {0, 1, 1, 1, 0, 1, 1, 0, 'y'}, // y/20
-    {0, 0, 0, 0, 0, 0, 0, 1, '.'}, //.
+    {0, 0, 0, 0, 0, 0, 0, 1, '.'}, // .
     {0, 0, 0, 0, 0, 0, 1, 0, '-'}, // dash/negative
     {0, 0, 0, 1, 0, 0, 0, 0, '_'}, // underscore
-    {1, 0, 0, 1, 1, 1, 0, 0, '['}, //[
-    {1, 1, 1, 1, 0, 0, 0, 0, ']'}, //]
-    {1, 1, 0, 0, 1, 0, 1, 0, '?'}, //?
+    {1, 0, 0, 1, 1, 1, 0, 0, '['}, // [
+    {1, 1, 1, 1, 0, 0, 0, 0, ']'}, // ]
+    {1, 1, 0, 0, 1, 0, 1, 0, '?'}, // ?
     {0, 0, 0, 0, 0, 0, 0, 0, ' '}  // blank
 };
-
-void Reset();
-void printDigit(char Chara, int digitPort, bool printPeriod = false);
-void printDisplay(String Phrase, int Delay);
 
 #endif
