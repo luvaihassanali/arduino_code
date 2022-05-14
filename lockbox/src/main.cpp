@@ -1,35 +1,48 @@
 #include <Arduino.h>
-#include <SoftwareSerial.h>
-#include <Stepper.h>
+#include <AccelStepper.h>
 
 #define DEBUG true
+#define FULLSTEP 4
 
-const int IR_SENSOR_PIN = 2;
-const int STEPS_TO_MOVE = 2048;
-const int MAX_SPEED = 400;
-const int NUM_STEPS = 100; // total number of steps for this motor
-Stepper stepper = Stepper(NUM_STEPS, 8, 10, 9, 11);
-
-SoftwareSerial esp8266(8, 7);
-const String WIFI_SSID = "ssid";
-const String WIFI_PASS = "password";
-const String WIFI_PORT = "3000";
-const String CONNECTION_STRING = "AT+CWJAP=\"" + WIFI_SSID + "\",\"" + WIFI_PASS + "\"\r\n";
-const String SERVER_STRING = "AT+CIPSERVER=1," + WIFI_PORT + "\r\n";
+// const int TILT_SENSOR_PIN = A0;
+const int BUTTON_PIN = 4;
+// const int IR_SENSOR_PIN = 2;
+bool forward = true;
+AccelStepper myStepper(FULLSTEP, 8, 10, 9, 11);
 
 void Log(String msg);
 
 void setup()
 {
-  stepper.setSpeed(MAX_SPEED);
+  if (DEBUG)
+  {
+    Serial.begin(9600);
+  }
+  pinMode(BUTTON_PIN, INPUT_PULLUP);
+  myStepper.setMaxSpeed(1000.0);
+  myStepper.setAcceleration(100.0);
+  myStepper.setSpeed(250);
+  Log("Setup done");
 }
 
 void loop()
 {
-  stepper.step(STEPS_TO_MOVE);
-  delay(1000);
-  stepper.step(-STEPS_TO_MOVE);
-  delay(1000);
+  int sensorVal = digitalRead(BUTTON_PIN);
+
+  if (sensorVal == LOW)
+  {
+    Log("Button pushed " + String(forward));
+    if (forward) {
+      forward = false;
+      myStepper.moveTo(250);
+    } else {
+      forward = true;
+      myStepper.moveTo(0);
+    }
+    delay(500);
+  }
+
+  myStepper.run();
 }
 
 void Log(String msg)
