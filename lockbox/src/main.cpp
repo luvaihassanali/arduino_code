@@ -34,7 +34,7 @@ void loop()
     Log("Button pushed " + String(forward));
     if (forward) {
       forward = false;
-      myStepper.moveTo(250);
+      myStepper.moveTo(300);
     } else {
       forward = true;
       myStepper.moveTo(0);
