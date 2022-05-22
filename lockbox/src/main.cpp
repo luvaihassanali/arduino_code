@@ -1,101 +1,94 @@
 #include <Arduino.h>
 #include <Servo.h>
-//#include <arduino-timer.h>
+#include <arduino-timer.h>
 
-#define DEBUG true
+#define DEBUG false
 
-const int IR_SENSOR_PIN = 7;
-// const int TICK_LENGTH = 5000;
-
+const int BAUD_RATE = 9600;
+const int DOOR_DELAY = 1000;
+const int IR_SENSOR_PIN = 8;
+const int SERVO_DELAY = 15;
+const int SERVO_END_POS = 10;
+const int SERVO_PIN = 12;
+const int SERVO_START_POS = 45;
+const long TICK_LENGTH = 7200000;
+const int RED_LIGHT_PIN = 11;
+const int GREEN_LIGHT_PIN = 10;
+const int BLUE_LIGHT_PIN = 9;
 Servo servo;
 
-// auto timer = timer_create_default();
-// bool locked = true;
+auto timer = timer_create_default();
+bool locked = true;
 bool open = false;
-int servoPos = 0;
+bool halfway = false;
 
-// void Lock();
+enum RGB_COLOR
+{
+  RED,
+  GREEN,
+  BLUE
+};
+
+void Lock();
 void Log(String msg);
-// bool Unlock(void *);
+inline const char *RGB_ToString(RGB_COLOR c);
+void RGB_color(int r, int g, int b);
+void ServoLock();
+void ServoUnlock();
+bool Unlock(void *);
+void TurnOnLed(RGB_COLOR color);
 
 void setup()
 {
   if (DEBUG)
   {
-    Serial.begin(9600);
+    Serial.begin(BAUD_RATE);
   }
 
   pinMode(IR_SENSOR_PIN, INPUT);
-  // pinMode(LED_BUILTIN, OUTPUT);
+  pinMode(RED_LIGHT_PIN, OUTPUT);
+  pinMode(GREEN_LIGHT_PIN, OUTPUT);
+  pinMode(BLUE_LIGHT_PIN, OUTPUT);
 
-  servo.write(0);
-  servo.attach(2);
-  Log("setup done");
+  servo.write(SERVO_START_POS);
+  servo.attach(SERVO_PIN);
 
-  // Log("set timer tick: " + String(TICK_LENGTH));
-  // timer.every(TICK_LENGTH, Unlock); // 7200000
-  // digitalWrite(LED_BUILTIN, LOW);
+  Log("Set timer tick: " + String(TICK_LENGTH));
+  timer.every(TICK_LENGTH, Unlock);
+
+  TurnOnLed(RED);
+  ServoUnlock();
+  delay(DOOR_DELAY);
+  ServoLock();
 }
 
 void loop()
 {
-
-  int irState = digitalRead(IR_SENSOR_PIN);
-  if (irState == 0)
+  timer.tick();
+  if (!locked)
   {
+    int irState = digitalRead(IR_SENSOR_PIN); // 1 (HIGH) is open 0 (LOW) is closed
     if (!open)
     {
-      Log("IR sensor: " + String(irState));
-      for (servoPos = 0; servoPos <= 180; servoPos += 1)
+      if (irState == HIGH)
       {
-        // in steps of 1 degree
-        servo.write(servoPos);
-        delay(15);
-      }
-      Log("moveto 310");
-      open = true;
-      delay(100);
-    }
-  }
-  else
-  {
-    if (open)
-    {
-      Log("IR sensor: " + String(irState));
-      for (servoPos = 180; servoPos >= 0; servoPos -= 1)
-      {
-        servo.write(servoPos);
-        delay(15);
-      }
-      Log("moveto 0");
-      open = false;
-      delay(100);
-    }
-  }
-
-  /*if (!locked)
-  {
-    int irState = digitalRead(IR_SENSOR_PIN); // 1 is open 0 is closed
-    if (!open)
-    {
-      if (irState == 1)
-      {
-        Log("open = true, IR sensor: " + String(irState));
+        Log("Open = true, IR sensor: " + String(irState));
         open = true;
-        //delay(5000);
+        TurnOnLed(BLUE);
+        delay(DOOR_DELAY);
       }
     }
     else
     {
-      if (irState == 0)
+      if (irState == LOW)
       {
-        Log("open = false, IR sensor: " + String(irState));
+        Log("Open = false, IR sensor: " + String(irState));
         open = false;
-        //delay(1000);
+        delay(DOOR_DELAY);
         Lock();
       }
     }
-  }*/
+  }
 }
 
 void Log(String msg)
@@ -105,22 +98,77 @@ void Log(String msg)
     Serial.println(msg);
   }
 }
-/*
+
 void Lock()
 {
-  Log("lock");
+  Log("Lock");
+  TurnOnLed(RED);
   locked = true;
-  digitalWrite(LED_BUILTIN, LOW);
-  stepper.moveTo(END_POS);
-  Log("set timer tick: " + String(TICK_LENGTH));
-  //timer.every(TICK_LENGTH, Unlock);
+  ServoLock();
+  Log("Set timer tick: " + String(TICK_LENGTH));
+  timer.every(TICK_LENGTH, Unlock);
+}
+
+void ServoLock()
+{
+  for (int servoPos = SERVO_END_POS; servoPos <= SERVO_START_POS; servoPos += 1)
+  {
+    servo.write(servoPos);
+    delay(SERVO_DELAY);
+  }
 }
 
 bool Unlock(void *)
 {
-  Log("unlock");
+  Log("Unlock");
+  TurnOnLed(GREEN);
   locked = false;
-  digitalWrite(LED_BUILTIN, HIGH);
-  stepper.moveTo(0);
+  ServoUnlock();
   return false;
-}*/
+}
+
+void ServoUnlock()
+{
+  for (int servoPos = SERVO_START_POS; servoPos >= SERVO_END_POS; servoPos -= 1)
+  {
+    servo.write(servoPos);
+    delay(SERVO_DELAY);
+  }
+}
+
+void TurnOnLed(RGB_COLOR color)
+{
+  Log(RGB_ToString(color));
+  switch (color)
+  {
+  case RED:
+    RGB_color(255, 0, 0); // Red
+    break;
+  case GREEN:
+    RGB_color(0, 255, 0); // Green
+    break;
+  case BLUE:
+    RGB_color(0, 0, 255); // Blue
+    break;
+  }
+}
+
+void RGB_color(int r, int g, int b)
+{
+  analogWrite(RED_LIGHT_PIN, r);
+  analogWrite(GREEN_LIGHT_PIN, g);
+  analogWrite(BLUE_LIGHT_PIN, b);
+}
+
+inline const char *RGB_ToString(RGB_COLOR c)
+{
+  switch (c)
+  {
+  case RED:
+    return "RED";
+  case GREEN:
+    return "GREEN";
+  case BLUE:
+    return "BLUE";
+  }
+}
