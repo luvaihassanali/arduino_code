@@ -5,10 +5,10 @@
 #define DEBUG false
 
 const int BAUD_RATE = 9600;
-const int DOOR_DELAY = 1000;
+const int DOOR_DELAY = 2500;
 const int IR_SENSOR_PIN = 8;
 const int SERVO_DELAY = 15;
-const int SERVO_END_POS = 10;
+const int SERVO_END_POS = 20;
 const int SERVO_PIN = 12;
 const int SERVO_START_POS = 45;
 const long TICK_LENGTH = 7200000;
