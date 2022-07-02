@@ -5,13 +5,13 @@
 #define DEBUG false
 
 const int BAUD_RATE = 9600;
-const int DOOR_DELAY = 2500;
+const int DOOR_DELAY = 2000;
 const int IR_SENSOR_PIN = 8;
 const int SERVO_DELAY = 15;
-const int SERVO_END_POS = 20;
+const int SERVO_UNLOCK_POS = 20;
 const int SERVO_PIN = 12;
-const int SERVO_START_POS = 45;
-const long TICK_LENGTH = 7200000;
+const int SERVO_LOCK_POS = 45;
+const long TICK_LENGTH = 14400000; //7200000;
 const int RED_LIGHT_PIN = 11;
 const int GREEN_LIGHT_PIN = 10;
 const int BLUE_LIGHT_PIN = 9;
@@ -50,7 +50,7 @@ void setup()
   pinMode(GREEN_LIGHT_PIN, OUTPUT);
   pinMode(BLUE_LIGHT_PIN, OUTPUT);
 
-  servo.write(SERVO_START_POS);
+  servo.write(SERVO_LOCK_POS);
   servo.attach(SERVO_PIN);
 
   Log("Set timer tick: " + String(TICK_LENGTH));
@@ -111,7 +111,7 @@ void Lock()
 
 void ServoLock()
 {
-  for (int servoPos = SERVO_END_POS; servoPos <= SERVO_START_POS; servoPos += 1)
+  for (int servoPos = SERVO_UNLOCK_POS; servoPos <= SERVO_LOCK_POS; servoPos += 1)
   {
     servo.write(servoPos);
     delay(SERVO_DELAY);
@@ -129,7 +129,7 @@ bool Unlock(void *)
 
 void ServoUnlock()
 {
-  for (int servoPos = SERVO_START_POS; servoPos >= SERVO_END_POS; servoPos -= 1)
+  for (int servoPos = SERVO_LOCK_POS; servoPos >= SERVO_UNLOCK_POS; servoPos -= 1)
   {
     servo.write(servoPos);
     delay(SERVO_DELAY);
