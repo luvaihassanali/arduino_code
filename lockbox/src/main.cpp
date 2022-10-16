@@ -12,9 +12,9 @@ const int SERVO_UNLOCK_POS = 20;
 const int SERVO_PIN = 12;
 const int SERVO_LOCK_POS = 45;
 const long TICK_LENGTH = 14400000; //7200000;
-const int RED_LIGHT_PIN = 11;
+const int RED_LIGHT_PIN = 9;
 const int GREEN_LIGHT_PIN = 10;
-const int BLUE_LIGHT_PIN = 9;
+const int BLUE_LIGHT_PIN = 11;
 Servo servo;
 
 auto timer = timer_create_default();
